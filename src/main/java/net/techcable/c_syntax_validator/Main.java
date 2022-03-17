@@ -130,13 +130,21 @@ public class Main {
             return null;
         }
 
+        private static void appendRepeated(StringBuilder target, char c, int amount) {
+            for (int i = 0; i < amount; i++) {
+                target.append(c);
+            }
+        }
         public String help() {
             StringBuilder res = new StringBuilder();
-            for (int i = 0; i < 4; i++) res.append(' '); // indent 4 spaces
+            appendRepeated(res, ' ', 4);
             if (shortDesc != null) {
                 res.append('-');
                 res.append(shortDesc);
                 res.append(", ");
+            } else {
+                // Sufficent padding to align longDesc
+                appendRepeated(res, ' ', 4);
             }
             res.append("--");
             res.append(longDesc);
