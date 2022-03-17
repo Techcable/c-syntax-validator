@@ -71,6 +71,15 @@ public class Main {
                 throw fatal("Unable to open file: " + fileName);
             }
         }
+        // Check for conflicts
+        for (Flag flag : flags) {
+            EnumSet<Flag> conflicts = flag.conflicts();
+            for (Flag conflict : conflicts) {
+                if (flags.contains(conflict)) {
+                    throw fatal("Flag " + flag + " conflicts with " + conflict);
+                }
+            }
+        }
         if (idx < args.length) {
             throw fatal("Too many arguments: Expected only " + (idx + 1));
         }
@@ -85,7 +94,15 @@ public class Main {
         CLexer lexer = new CLexer(CharStreams.fromReader(this.reader));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CParser parser = new CParser(tokens);
-        parser.compilationUnit();
+        if (this.flags.contains(Flag.EXPR)) {
+            parser.expression();
+        } else if (this.flags.contains(Flag.STMT)) {
+            parser.statement();
+        } else if (this.flags.contains(Flag.BLOCK_BODY)) {
+            parser.blockItemList();
+        } else {
+            parser.compilationUnit();
+        }
     }
 
     private static AssertionError fatal(String msg) {
@@ -99,7 +116,13 @@ public class Main {
 
     public enum Flag {
         HELP('h', "help", "Print this help message"),
-        STDIN(null, "stdin", "Read from stdin (allows omitting fileName)");
+        STDIN(null, "stdin", "Read from stdin (allows omitting fileName)"),
+        EXPR('e', "expr", "Parse the code as an expression, instead of a whole file"),
+        STMT(null, "stmt", "Parse the code as a single statement, instead of a whole file"),
+        BLOCK_BODY(
+            null, "block-body",
+            "Parse the code as the body of a block, instead of a while file"
+        );
 
         private final Character shortDesc;
         private final String longDesc;
@@ -110,6 +133,26 @@ public class Main {
             this.longDesc = Objects.requireNonNull(longDesc);
             this.help = Objects.requireNonNull(help);
             if (longDesc.startsWith("-")) throw new IllegalArgumentException();
+        }
+
+        public EnumSet<Flag> conflicts() {
+            EnumSet<Flag> targetSpecifiers = EnumSet.of(
+                Flag.EXPR,
+                Flag.STMT,
+                Flag.BLOCK_BODY
+            );
+            switch (this) {
+            case HELP:
+            case STDIN:
+                return EnumSet.noneOf(Flag.class);
+            case EXPR:
+            case STMT:
+            case BLOCK_BODY:
+                targetSpecifiers.remove(this);
+                return targetSpecifiers;
+            default:
+                throw new AssertionError(this);
+            }
         }
 
         private static Flag parse(String name) {
@@ -123,7 +166,7 @@ public class Main {
             for (Flag f : Flag.values()) {
                 if (f.longDesc.equals(targetLong)) {
                     return f;
-                } else if (Objects.equals(targetShort, f.shortDesc)) {
+                } else if (f.shortDesc != null && f.shortDesc.equals(targetShort)) {
                     return f;
                 }
             }
