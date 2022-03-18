@@ -6,11 +6,13 @@ import antlr4
 from .parser.CLexer import CLexer
 from .parser.CParser import CParser
 
+
 class InputTarget(Enum):
     EXPRESSION = "expr"
     STATEMENT = "stmt"
     BLOCK_BODY = "block-body"
     FILE = "file"
+
 
 class InvalidCodeException(Exception):
     reasons: list[str]
@@ -21,10 +23,12 @@ class InvalidCodeException(Exception):
         self.reasons = reasons
 
     def __str__(self):
-        return '\n'.join(self.reasons)
+        return "\n".join(self.reasons)
+
 
 class ValidatorErrorListener(antlr4.error.ErrorListener.ErrorListener):
     msgs: list[str]
+
     def __init__(self):
         self.msgs = []
 
@@ -35,6 +39,7 @@ class ValidatorErrorListener(antlr4.error.ErrorListener.ErrorListener):
 def validate_text(text: str, target: InputTarget):
     assert isinstance(text, str)
     return _validate_antlr_input_stream(antlr4.InputStream(text), target)
+
 
 def _validate_antlr_input_stream(stream: antlr4.InputStream, target: InputTarget):
     assert isinstance(stream, antlr4.InputStream)
