@@ -1,5 +1,5 @@
 from enum import Enum
-import io
+from dataclasses import dataclass
 
 import antlr4
 
@@ -14,8 +14,31 @@ class InputTarget(Enum):
     FILE = "file"
 
 
+class Location:
+    __slots__ = "line", "column"
+    line: int
+    column: int
+
+    def __init__(self, line: int, column: int):
+        assert line > 0
+        assert column >= 0
+        self.line = line
+        self.column = column
+
+    def __str__(self):
+        return f"{self.line}:{self.column}"
+
+@dataclass
+class ErrorMessage:
+    location: Location
+    msg: str
+
+    def __str__(self):
+        return f"line {self.location} {self.msg}"
+
+
 class InvalidCodeException(Exception):
-    reasons: list[str]
+    reasons: list[ErrorMessage]
 
     def __init__(self, reasons: list[str]):
         super().__init__("Invalid code")
@@ -23,17 +46,17 @@ class InvalidCodeException(Exception):
         self.reasons = reasons
 
     def __str__(self):
-        return "\n".join(self.reasons)
+        return "\n".join(map(str, self.reasons))
 
 
 class ValidatorErrorListener(antlr4.error.ErrorListener.ErrorListener):
-    msgs: list[str]
+    msgs: list[ErrorMessage]
 
     def __init__(self):
         self.msgs = []
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        self.msgs.append(f"line {line}:{column} {msg}")
+        self.msgs.append(ErrorMessage(location=Location(line, column), msg=msg))
 
 
 def validate_text(text: str, target: InputTarget):
