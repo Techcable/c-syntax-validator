@@ -4,3 +4,6 @@ build
 
 # IntellIJ
 .idea
+
+# Python
+__pycache__
