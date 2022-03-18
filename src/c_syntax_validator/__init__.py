@@ -40,16 +40,49 @@ def validate_text(text: str, target: InputTarget):
     assert isinstance(text, str)
     return _validate_antlr_input_stream(antlr4.InputStream(text), target)
 
+class InternalState:
+    __slots__ = "lexer", "parser", "listener"
+    lexer: CLexer
+    listener: ValidatorErrorListener
+    parser: CParser
+
+    def __init__(self, lexer, tokens, parser):
+        self.lexer = lexer
+        self.parser = parser
+        self.listener = None
+
+    @staticmethod
+    def create(stream: antlr4.InputStream) -> "InternalState":
+        lexer = CLexer(stream)
+        tokens = antlr4.CommonTokenStream(lexer)
+        parser = CParser(tokens)
+        state = InternalState(lexer, tokens, parser)
+        state.reset_errors()
+        return state
+
+    def reset(self, stream: antlr4.InputStream):
+        self.lexer.inputStream = stream
+        tokens = antlr4.CommonTokenStream(self.lexer)
+        self.parser.setTokenStream(tokens)
+        self.reset_errors()
+
+    def reset_errors(self):
+        self.listener = ValidatorErrorListener()
+        self.parser.removeErrorListeners()
+        self.parser.addErrorListener(self.listener)
+
+_INTERNAL_STATE = None
 
 def _validate_antlr_input_stream(stream: antlr4.InputStream, target: InputTarget):
     assert isinstance(stream, antlr4.InputStream)
     assert isinstance(target, InputTarget)
-    lexer = CLexer(stream)
-    tokens = antlr4.CommonTokenStream(lexer)
-    parser = CParser(tokens)
-    listener = ValidatorErrorListener()
-    parser.removeErrorListeners()
-    parser.addErrorListener(listener)
+    global _INTERNAL_STATE
+    if _INTERNAL_STATE is None:
+        _INTERNAL_STATE = InternalState.create(stream)
+    else:
+        _INTERNAL_STATE.reset(stream)
+    parser = _INTERNAL_STATE.parser
+    listener = _INTERNAL_STATE.listener
     if target == InputTarget.EXPRESSION:
         parser.expression()
     elif target == InputTarget.STATEMENT:
