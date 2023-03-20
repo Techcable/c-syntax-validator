@@ -1,5 +1,30 @@
+[project]
+name = "c-syntax-validator"
+version = "0.2.0"
+description = "Validates C syntax with an antlr parser"
+authors = [{ name = "Techcable", email = "git.contact@techcable.net" }]
+readme = "README.md"
+license = { text = "MIT License" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "antlr4-python3-runtime",
+    "click",
+]
+requires-python = ">=3.9"
+
+[project.urls]
+homepage = "https://github.com/Techcable/c-syntax-validator"
+
+[project.scripts]
+c-syntax-validator = "c_syntax_validator.__main__:c_syntax_validator"
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=60", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
