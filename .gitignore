@@ -8,5 +8,5 @@ build
 # Python
 __pycache__
 *.egg-info
-build
 *.whl
+/dist
