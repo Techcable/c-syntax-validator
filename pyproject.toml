@@ -12,7 +12,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 dependencies = [
-    "antlr4-python3-runtime",
+    "antlr4-python3-runtime==4.9.*",
     "click",
 ]
 requires-python = ">=3.9"
