@@ -1,5 +1,5 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 
 import antlr4
 
@@ -27,6 +27,7 @@ class Location:
 
     def __str__(self):
         return f"{self.line}:{self.column}"
+
 
 @dataclass
 class ErrorMessage:

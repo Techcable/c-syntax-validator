@@ -1,10 +1,10 @@
-import click
 import antlr4
+import click
+
+import c_syntax_validator as validator
 
 from .parser.CLexer import CLexer
 from .parser.CParser import CParser
-
-import c_syntax_validator as validator
 
 
 @click.option(
