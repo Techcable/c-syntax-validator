@@ -1,6 +1,5 @@
 [project]
 name = "c-syntax-validator"
-version = "0.2.0"
 description = "Validates C syntax with an antlr parser"
 authors = [{ name = "Techcable", email = "git.contact@techcable.net" }]
 readme = "README.md"
@@ -16,6 +15,7 @@ dependencies = [
     "click",
 ]
 requires-python = ">=3.9"
+dynamic = ["version"]
 
 [project.urls]
 homepage = "https://github.com/Techcable/c-syntax-validator"
@@ -24,7 +24,7 @@ homepage = "https://github.com/Techcable/c-syntax-validator"
 c-syntax-validator = "c_syntax_validator.__main__:c_syntax_validator"
 
 [build-system]
-requires = ["setuptools>=60", "wheel"]
+requires = ["setuptools>=60", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.black]
@@ -33,3 +33,7 @@ exclude = """src/c_syntax_validator/parser|build"""
 [tool.isort]
 profile = "black"
 extend_skip = ["src/c_syntax_validator/parser"]
+
+[tool.setuptools_scm]
+write_to = "src/c_syntax_validator/_version.py"
+

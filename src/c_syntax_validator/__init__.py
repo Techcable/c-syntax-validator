@@ -6,6 +6,10 @@ import antlr4
 from .parser.CLexer import CLexer
 from .parser.CParser import CParser
 
+try:
+    from ._version import __version__
+except ImportError:
+    __version__ = None
 
 class InputTarget(Enum):
     EXPRESSION = "expr"
